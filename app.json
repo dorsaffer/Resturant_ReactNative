@@ -1,0 +1,12 @@
+{
+  "name": "artify",
+  "displayName": "artify",
+  "expo": {
+    "name": "artify",
+    "slug": "artify",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
