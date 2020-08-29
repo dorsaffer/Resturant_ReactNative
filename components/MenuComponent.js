@@ -6,6 +6,7 @@ import { Tile } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
 import { Loading } from './LoadingComponent';
+import Reservation from './ReservationComponent';
 
 
 const mapStateToProps = state => {
