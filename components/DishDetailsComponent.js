@@ -6,6 +6,7 @@ import { baseUrl } from '../shared/baseUrl';
 import { DISHES } from '../shared/dishes';
 import { COMMENTS } from '../shared/comments';
 import { postComment, postFavorite } from '../redux/ActionCreators';
+import * as Animatable from 'react-native-animatable';
 
 const mapStateToProps = state => {
     return {
@@ -24,6 +25,8 @@ function RenderDish(props) {
     const dish = props.dish;
     if (dish != null) {
         return (
+
+            <Animatable.View animation="fadeInDown" duration={2000} delay={1000}>
             <Card featuredTitle={dish.name}
                 image={{ uri: baseUrl + dish.image }} >
                 <Text style={{ margin: 10 }}>
@@ -46,6 +49,7 @@ function RenderDish(props) {
                     onPress={() => props.openCommentForm()}
                 />
             </Card>
+            </Animatable.View>
         );
     }
     else {

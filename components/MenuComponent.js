@@ -1,4 +1,4 @@
-import { View, FlatList,Text } from 'react-native';
+import { View, FlatList, Text } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import React, { Component } from 'react';
 import { DISHES } from '../shared/dishes';
@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
 import { Loading } from './LoadingComponent';
 import Reservation from './ReservationComponent';
+import * as Animatable from 'react-native-animatable';
+
 
 
 const mapStateToProps = state => {
@@ -36,17 +38,16 @@ class Menu extends Component {
 
 			return (
 
-
-				<ListItem
-					key={index}
-					title={item.name}
-					subtitle={item.description}
-					onPress={() => navigate('DishDetail', { dishId: item.id })}
-					hideChevron={true}
-					leftAvatar={{ source: require('./images/uthappizza.png') }}
-				/>
-
-
+				<Animatable.View animation="fadeInRightBig" duration={2000}>
+					<ListItem
+						key={index}
+						title={item.name}
+						subtitle={item.description}
+						onPress={() => navigate('DishDetail', { dishId: item.id })}
+						hideChevron={true}
+						leftAvatar={{ source: require('./images/uthappizza.png') }}
+					/>
+				</Animatable.View>
 
 			);
 		};
