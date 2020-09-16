@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Modal, StyleSheet, Button, Alert, PanResponder } from 'react-native';
+import { Text, View, ScrollView, FlatList, Modal, StyleSheet, Button, Alert, PanResponder, Share } from 'react-native';
 import { Card, Icon, Input, Rating } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -20,6 +20,16 @@ const mapDispatchToProps = dispatch => ({
     postFavorite: (dishId) => dispatch(postFavorite(dishId)),
     postComment: (dishId, rating, author, comment) => dispatch(postComment(dishId, rating, author, comment))
 })
+const shareDish = (title, message, url) => {
+    Share.share({
+        title: title,
+        message: title + ': ' + message + ' ' + url,
+        url: url
+    }, {
+        dialogTitle: 'Share ' + title
+    })
+}
+
 const recognizeDrag = ({ moveX, moveY, dx, dy }) => {
     if (dx < -200)
         return true;
@@ -28,21 +38,21 @@ const recognizeDrag = ({ moveX, moveY, dx, dy }) => {
 }
 
 const recognizeComment = ({ moveX, moveY, dx, dy }) => {
-	if (dx > 200)
-			return true;
-	else
-			return false;
+    if (dx > 200)
+        return true;
+    else
+        return false;
 };
 
 
 
 function RenderDish(props) {
-		const dish = props.dish;
- /*	handleViewRef = ref => this.view = ref;*/
+    const dish = props.dish;
+    /*	handleViewRef = ref => this.view = ref;*/
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: (e, gestureState) => {
-					if (recognizeComment(gestureState))
-            return true;
+            if (recognizeComment(gestureState))
+                return true;
         },
         onPanResponderEnd: (e, gestureState) => {
             console.log("pan responder end", gestureState);
@@ -55,14 +65,14 @@ function RenderDish(props) {
                         { text: 'OK', onPress: () => { props.favorite ? console.log('Already favorite') : props.onPress() } },
                     ],
                     { cancelable: false }
-								);
-								if (recognizeComment(gestureState))
+                );
+            if (recognizeComment(gestureState))
                 props.openCommentForm();
-               return true;
+            return true;
         },
         onPanResponderGrant: () => {
             this.view.rubberBand(1000)
-            .then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
+                .then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
         },
 
     })
@@ -92,6 +102,13 @@ function RenderDish(props) {
                         color="#512DA8"
                         onPress={() => props.openCommentForm()}
                     />
+                    <Icon
+                        raised
+                        reverse
+                        name='share'
+                        type='font-awesome'
+                        color='#51D2A8'
+                        onPress={() => shareDish(dish.name, dish.description, baseUrl + dish.image)} />
                 </Card>
             </Animatable.View>
         );
@@ -171,8 +188,8 @@ class DishDetail extends Component {
         const { author, comment, rating } = this.state;
         postComment(dishId, rating, author, comment);
         this.resetCommentForm();
-		}
-	
+    }
+
 
     render() {
         const dishId = this.props.navigation.getParam('dishId', '');
@@ -183,16 +200,16 @@ class DishDetail extends Component {
                     dish={this.props.dishes.dishes[+dishId]}
                     favorite={this.props.favorites.some(el => el === dishId)}
                     onPress={() => this.markFavorite(dishId)}
-										openCommentForm={() => this.openCommentForm()}
-										/>
+                    openCommentForm={() => this.openCommentForm()}
+                />
                 <Modal
-                   
+
                     animationType="slide"
                     transparent={false}
                     visible={showCommentForm}
                     onDismiss={() => this.resetCommentForm()}
                     onRequestClose={() => this.resetCommentForm()}
-                    
+
                 >
                     <View style={styles.modal}>
                         <Text style={styles.modalTitle}>Add Your Comment</Text>
