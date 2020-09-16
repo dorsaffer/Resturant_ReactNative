@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, ScrollView, FlatList, Modal, Button } from 'react-native';
+import { Text, View, ScrollView, FlatList, Modal, StyleSheet, Button, Alert, PanResponder } from 'react-native';
 import { Card, Icon, Input, Rating } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -20,35 +20,79 @@ const mapDispatchToProps = dispatch => ({
     postFavorite: (dishId) => dispatch(postFavorite(dishId)),
     postComment: (dishId, rating, author, comment) => dispatch(postComment(dishId, rating, author, comment))
 })
+const recognizeDrag = ({ moveX, moveY, dx, dy }) => {
+    if (dx < -200)
+        return true;
+    else
+        return false;
+}
+
+const recognizeComment = ({ moveX, moveY, dx, dy }) => {
+	if (dx > 200)
+			return true;
+	else
+			return false;
+};
+
+
 
 function RenderDish(props) {
-    const dish = props.dish;
+		const dish = props.dish;
+ /*	handleViewRef = ref => this.view = ref;*/
+    const panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: (e, gestureState) => {
+					if (recognizeComment(gestureState))
+            return true;
+        },
+        onPanResponderEnd: (e, gestureState) => {
+            console.log("pan responder end", gestureState);
+            if (recognizeDrag(gestureState))
+                Alert.alert(
+                    'Add Favorite',
+                    'Are you sure you wish to add ' + dish.name + ' to favorite?',
+                    [
+                        { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                        { text: 'OK', onPress: () => { props.favorite ? console.log('Already favorite') : props.onPress() } },
+                    ],
+                    { cancelable: false }
+								);
+								if (recognizeComment(gestureState))
+                props.openCommentForm();
+               return true;
+        },
+        onPanResponderGrant: () => {
+            this.view.rubberBand(1000)
+            .then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
+        },
+
+    })
+
     if (dish != null) {
         return (
-
-            <Animatable.View animation="fadeInDown" duration={2000} delay={1000}>
-            <Card featuredTitle={dish.name}
-                image={{ uri: baseUrl + dish.image }} >
-                <Text style={{ margin: 10 }}>
-                    {dish.description}
-                </Text>
-                <Icon
-                    raised
-                    reverse
-                    name={props.favorite ? 'heart' : 'heart-o'}
-                    type='font-awesome'
-                    color='#f50'
-                    onPress={() => props.favorite ? console.log('Already favorite') : props.onPress()}
-                />
-                <Icon
-                    raised
-                    reverse
-                    name="pencil"
-                    type="font-awesome"
-                    color="#512DA8"
-                    onPress={() => props.openCommentForm()}
-                />
-            </Card>
+            <Animatable.View animation="fadeInDown" duration={2000} delay={1000}
+                {...panResponder.panHandlers} >
+                <Card featuredTitle={dish.name}
+                    image={{ uri: baseUrl + dish.image }} >
+                    <Text style={{ margin: 10 }}>
+                        {dish.description}
+                    </Text>
+                    <Icon
+                        raised
+                        reverse
+                        name={props.favorite ? 'heart' : 'heart-o'}
+                        type='font-awesome'
+                        color='#f50'
+                        onPress={() => props.favorite ? console.log('Already favorite') : props.onPress()}
+                    />
+                    <Icon
+                        raised
+                        reverse
+                        name="pencil"
+                        type="font-awesome"
+                        color="#512DA8"
+                        onPress={() => props.openCommentForm()}
+                    />
+                </Card>
             </Animatable.View>
         );
     }
@@ -127,7 +171,8 @@ class DishDetail extends Component {
         const { author, comment, rating } = this.state;
         postComment(dishId, rating, author, comment);
         this.resetCommentForm();
-    }
+		}
+	
 
     render() {
         const dishId = this.props.navigation.getParam('dishId', '');
@@ -138,14 +183,16 @@ class DishDetail extends Component {
                     dish={this.props.dishes.dishes[+dishId]}
                     favorite={this.props.favorites.some(el => el === dishId)}
                     onPress={() => this.markFavorite(dishId)}
-                    openCommentForm={() => this.openCommentForm()}
-                />
+										openCommentForm={() => this.openCommentForm()}
+										/>
                 <Modal
+                   
                     animationType="slide"
                     transparent={false}
                     visible={showCommentForm}
                     onDismiss={() => this.resetCommentForm()}
                     onRequestClose={() => this.resetCommentForm()}
+                    
                 >
                     <View style={styles.modal}>
                         <Text style={styles.modalTitle}>Add Your Comment</Text>

@@ -30,7 +30,7 @@ class Menu extends Component {
 		title: 'Menu'
 	};
 
-
+	
 	render() {
 
 		const { navigate } = this.props.navigation;
